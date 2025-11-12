@@ -1,0 +1,104 @@
+version: '3.8'
+
+services:
+  # ========== DATABASES ==========
+  auth-db:
+    image: postgres:15
+    container_name: auth-db
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: ${POSTGRES_AUTH_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_AUTH_DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - auth-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  url-db:
+    image: postgres:15
+    container_name: url-db
+    environment:
+      POSTGRES_DB: url_db
+      POSTGRES_USER: ${POSTGRES_URL_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_URL_DB_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - url-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  analytics-db:
+    image: postgres:15
+    container_name: analytics-db
+    environment:
+      POSTGRES_DB: analytics_db
+      POSTGRES_USER: ${POSTGRES_ANALYTICS_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_ANALYTICS_DB_PASSWORD}
+    ports:
+      - "5435:5432"
+    volumes:
+      - analytics-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========== CACHE ==========
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ========== MESSAGE QUEUE ==========
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${KAFKA_BOOTSTRAP_SERVERS},PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+# ========== VOLUMES ==========
+volumes:
+  auth-data:
+  url-data:
+  analytics-data:
