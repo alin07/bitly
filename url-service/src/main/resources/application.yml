@@ -1,0 +1,49 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: url-service
+  
+  datasource:
+    url: ${URL_DATASOURCE_URL}
+    username: ${POSTGRES_URL_DB_USER}
+    password: ${POSTGRES_URL_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  
+  # Redis Configuration
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST}
+      port: 6379
+      timeout: 2000ms
+  
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: 1
+
+# Auth Service Configuration
+auth:
+  service:
+    url: ${AUTH_SERVICE_URL}
+
+# Base URL for short URLs
+app:
+  base-url: ${APP_BASE_URL}
+
+logging:
+  level:
+    com.bitly.url: DEBUG
