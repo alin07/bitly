@@ -1,4 +1,4 @@
-package main.java.com.bitly.url.dto;
+package com.bitly.url.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

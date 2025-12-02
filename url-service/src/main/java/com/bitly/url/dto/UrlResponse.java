@@ -1,4 +1,4 @@
-package main.java.com.bitly.url.dto;
+package com.bitly.url.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

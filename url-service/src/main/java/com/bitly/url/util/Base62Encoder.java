@@ -1,4 +1,4 @@
-package main.java.com.bitly.url.util;
+package com.bitly.url.util;
 
 import org.springframework.stereotype.Component;
 

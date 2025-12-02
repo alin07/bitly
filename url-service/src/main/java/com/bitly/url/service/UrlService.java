@@ -1,15 +1,15 @@
-package main.java.com.bitly.url.service;
+package com.bitly.url.service;
 
 import com.bitly.url.model.Url;
 import com.bitly.url.repository.UrlRepository;
 import com.bitly.url.util.Base62Encoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import main.java.com.bitly.url.dto.ClickEvent;
-import main.java.com.bitly.url.dto.CreateUrlRequest;
-import main.java.com.bitly.url.dto.UpdateUrlRequest;
-import main.java.com.bitly.url.dto.UrlResponse;
-import main.java.com.bitly.url.util.Base62Encoder;
+import com.bitly.url.dto.ClickEvent;
+import com.bitly.url.dto.CreateUrlRequest;
+import com.bitly.url.dto.UpdateUrlRequest;
+import com.bitly.url.dto.UrlResponse;
+import com.bitly.url.util.Base62Encoder;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -58,6 +58,7 @@ public class UrlService {
         urlRepository.save(url);
         return toUrlResponse(url);
       }
+      
       Url saved = urlRepository.save(url);      
       shortCodeOrSlug = base62Encoder.encode(saved.getId());
       saved.setShortCode(shortCodeOrSlug);
@@ -65,8 +66,23 @@ public class UrlService {
       return toUrlResponse(saved);
   }
 
+    public UrlResponse getUrlDetails(String shortCode, Long userId) {
+      Url url = urlRepository.findByShortCode(shortCode)
+                                 .orElseThrow(() -> new RuntimeException("Short code not found. " + shortCode));
+      if (!url.getUserId().equals(userId)) {
+          throw new RuntimeException("Unauthorized access");
+      }
+      return toRedirectResponse(url);
+    }
 
-    // Helper method to convert Url entity to UrlResponse
+    public void deleteUrl(String shortCode, Long userId) {
+      urlRepository.deleteByShortCodeAndUserId(shortCode, userId);
+    }
+
+    private UrlResponse toRedirectResponse(Url url) {
+      return UrlResponse.builder().longUrl(url.getLongUrl()).build();
+    }
+
     private UrlResponse toUrlResponse(Url url) {
         return UrlResponse.builder()
                 .shortUrl(baseUrl + "/" + url.getShortCode())

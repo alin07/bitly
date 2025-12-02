@@ -1,4 +1,4 @@
-package main.java.com.bitly.url.repository;
+package com.bitly.url.repository;
 
 import com.bitly.url.model.Url;
 import org.springframework.data.jpa.repository.JpaRepository;
