@@ -11,8 +11,6 @@ import java.util.Optional;
 public interface UrlRepository extends JpaRepository<Url, Long> {
     Optional<Url> findByShortCode(String shortCode);
     boolean existsByShortCode(String shortCode);
-    Optional<Url> findByLongCode(String longCode);
-    boolean existsByLongCode(String longCode);
     List<Url> findByUserId(Long userId);
     void deleteByShortCodeAndUserId(String shortCode, Long userId);
 }
