@@ -42,7 +42,7 @@ auth:
 
 # Base URL for short URLs
 app:
-  base-url: ${APP_BASE_URL}
+  base-url: ${URL_BASE_URL}
 
 logging:
   level:
